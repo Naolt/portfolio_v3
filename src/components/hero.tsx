@@ -1,17 +1,45 @@
-export default function Hero() {
+import { client } from "@/sanity/lib/client";
+import { HeroSectionType } from "@/sanity/schemaTypes/hero-section";
+
+const HERO_QUERY = `*[
+  _type == "heroSection"
+] | order(_updatedAt desc) [0]`;
+
+const options = { next: { revalidate: 30 } };
+
+export default async function Hero() {
+  const heroContent = await client.fetch<HeroSectionType>(
+    HERO_QUERY,
+    {},
+    options
+  );
+
+  if (!heroContent) {
+    return null;
+  }
+
+  const { heading, subheading } = heroContent;
+
+  const headingWhiteColored = heading
+    .split(" ")
+    .slice(0, heading.split(" ").length - 2)
+    .join(" ");
+  const headingHighlighted = heading.split(" ").slice(-2).join(" ");
+
   return (
-    <section className="w-full max-w-screen-xl mx-auto pt-32 pb-16 grid grid-cols-12">
-      <div className="space-y-6 col-span-8">
+    <section
+      className="w-full max-w-screen-xl mx-auto pt-32 pb-16 grid grid-cols-12"
+      id="hero"
+    >
+      <div className="space-y-6 col-span-full md:col-span-10 lg:col-span-8">
         <h1 className="text-5xl font-bold">
-          I&apos;m a software engineer that rarely
-          <span className="text-accent-accentSecondary"> writes code</span>.
+          {headingWhiteColored}{" "}
+          <span className="text-accent-accentSecondary">
+            {" "}
+            {headingHighlighted}
+          </span>
         </h1>
-        <p className="text-zinc-400">
-          Meet Manu Arora, the self-proclaimed code wizard who can turn caffeine
-          into beautiful websites. His passion for building clean and functional
-          designs is only rivaled by his passion for finding the perfect GIF to
-          express his excitement.
-        </p>
+        <p className="text-zinc-400">{subheading}</p>
       </div>
     </section>
   );

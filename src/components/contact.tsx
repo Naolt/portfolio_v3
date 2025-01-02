@@ -2,44 +2,46 @@ import Link from "next/link";
 import { Icon } from "@iconify/react";
 
 import ContactForm from "./contact-form";
+import { ContactType } from "@/sanity/schemaTypes/contact-section";
+import { client } from "@/sanity/lib/client";
 
-type SocialType = {
-  label: string;
-  icon: string;
-  link: string;
-};
-export const SOCIALS: SocialType[] = [
-  {
-    label: "LinkedIn",
-    icon: "fa-brands:linkedin",
-    link: "https://linkedin.com/in/naolt",
-  },
-  {
-    label: "GitHub",
-    icon: "fa-brands:github",
-    link: "fa-brands:github",
-  },
-  {
-    label: "Email",
-    icon: "fa-solid:envelope",
-    link: "mailto:naol.delesa.official@gmail.com",
-  },
-];
+const CONTACT_QUERY = `*[_type == "contactInfo"] | order(_updatedAt desc) [0]`;
 
-export default function Contact() {
+const options = { next: { revalidate: 30 } };
+
+export default async function Contact() {
+  const contactInfo = await client.fetch<ContactType>(
+    CONTACT_QUERY,
+    {},
+    options
+  );
+
+  if (!contactInfo) {
+    return null;
+  }
+
+  const { email, phone, linkedin, github } = contactInfo;
+
+  const SOCIALS = [
+    { icon: "material-symbols:mail-rounded", link: `mailto:${email}` },
+    { icon: "akar-icons:linkedin-fill", link: linkedin },
+    { icon: "akar-icons:github-fill", link: github },
+    { icon: "si:phone-fill", link: `tel:${phone}` },
+  ];
+
   return (
-    <section className="w-full max-w-screen-xl mx-auto py-32 grid grid-cols-12">
-      <header className="space-y-4 w-[427px] col-span-8">
-        <h1 className="text-3xl font-semibold col-span-full">
-          Let’s work together
-        </h1>
-        <p className="text-zinc-400 col-span-6">
-          This is a template Figma file, turned into code using Anima. Learn
-          more at AnimaApp.com This is a template Figma file, turned into code
-          using Anima. Learn more at AnimaApp.com
+    <section
+      className="w-full max-w-screen-xl mx-auto py-32 flex gap-12 flex-wrap"
+      id="contact"
+    >
+      <header className="space-y-4 w-full md:max-w-[427px] md:w-1/3 ">
+        <h1 className="text-3xl font-semibold w-full">Let’s work together</h1>
+        <p className="text-zinc-400 w-full">
+          Looking to hire a software engineer or get your project developed?
+          Let’s connect and turn your ideas into reality!
         </p>
         {/* socials */}
-        <div className="flex gap-4 col-span-full">
+        <div className="flex gap-4 flex-1">
           {SOCIALS.map((social, index) => (
             <Link href={social.link} key={index}>
               <Icon icon={social.icon} className="w-6 h-6 text-zinc-100" />
@@ -47,7 +49,7 @@ export default function Contact() {
           ))}
         </div>
       </header>
-      <div className="col-span-3">
+      <div className="flex justify-start flex-1 lg:justify-end ">
         <ContactForm />
       </div>
     </section>

@@ -1,12 +1,5 @@
 "use client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "./ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +7,9 @@ import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Loader } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string(),
@@ -22,6 +18,8 @@ const formSchema = z.object({
 });
 
 export default function ContactForm() {
+  const [loading, setLoading] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -32,11 +30,27 @@ export default function ContactForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    setLoading(true);
+    fetch("/api", {
+      body: JSON.stringify(values),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    }).then((response) => {
+      if (response.ok) {
+        setLoading(false);
+        toast.success("Message sent successfully");
+        form.reset();
+      } else {
+        setLoading(false);
+        toast.error("Failed to send message");
+      }
+    });
   }
 
   return (
-    <Card className="w-[350px]">
+    <Card className="w-full sm:w-[350px]">
       <CardContent className="p-8">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -76,8 +90,9 @@ export default function ContactForm() {
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit">
-              Send Message
+            <Button className="w-full" type="submit" disabled={loading}>
+              {loading && <Loader className="w-6 h-6 mr-2 animate-spin" />}
+              {loading ? "Sending" : "Send Message"}
             </Button>
           </form>
         </Form>

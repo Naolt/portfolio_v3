@@ -1,85 +1,33 @@
+import { ProjectType } from "@/sanity/schemaTypes/project-section";
 import { ProjectCard } from "./project-card";
+import { client } from "@/sanity/lib/client";
 
-export type TechnologyType = {
-  name: string;
-  icon: string;
-};
+const PROJECTS_QUERY = `*[
+  _type == "projects"
+]`;
 
-export type ProjectType = {
-  title: string;
-  description: string;
-  technologies: TechnologyType[];
-  image: string;
-  github: string;
-  demo: string;
-};
+const options = { next: { revalidate: 30 } };
 
-const PROJECTS: ProjectType[] = [
-  {
-    title: "Eskalate",
-    description:
-      "Built a new feature that allowed users to listen to music while they were sleeping while they were sleeping",
-    technologies: [
-      { name: "React", icon: "devicon:react" },
-      { name: "TypeScript", icon: "devicon:typescript" },
-      { name: "TailwindCSS", icon: "devicon:tailwindcss" },
-    ],
-    image: "",
-    github: "https://github.com/naolt",
-    demo: "https://eskalate.io",
-  },
-  {
-    title: "Eskalate",
-    description:
-      "Built a new feature that allowed users to listen to music while they were sleeping while they were sleeping",
-    technologies: [
-      { name: "React", icon: "devicon:react" },
-      { name: "TypeScript", icon: "devicon:typescript" },
-      { name: "TailwindCSS", icon: "devicon:tailwindcss" },
-    ],
-    image: "",
-    github: "",
-    demo: "https://eskalate.io",
-  },
-  {
-    title: "Eskalate",
-    description:
-      "Built a new feature that allowed users to listen to music while they were sleeping while they were sleeping",
-    technologies: [
-      { name: "React", icon: "devicon:react" },
-      { name: "TypeScript", icon: "devicon:typescript" },
-      { name: "TailwindCSS", icon: "devicon:tailwindcss" },
-    ],
-    image: "",
-    github: "",
-    demo: "https://eskalate.io",
-  },
-  {
-    title: "Eskalate",
-    description:
-      "Built a new feature that allowed users to listen to music while they were sleeping while they were sleeping",
-    technologies: [
-      { name: "React", icon: "devicon:react" },
-      { name: "TypeScript", icon: "devicon:typescript" },
-      { name: "TailwindCSS", icon: "devicon:tailwindcss" },
-    ],
-    image: "",
-    github: "",
-    demo: "https://eskalate.io",
-  },
-];
+export default async function Projects() {
+  const projects = await client.fetch<ProjectType[]>(
+    PROJECTS_QUERY,
+    {},
+    options
+  );
 
-export default function Projects() {
   return (
-    <section className="w-full max-w-screen-xl mx-auto pt-32 grid grid-cols-12 gap-6">
-      <header className="col-span-full space-y-4 mb-12">
+    <section
+      className="w-full max-w-screen-xl mx-auto pt-32 flex flex-col gap-6"
+      id="projects"
+    >
+      <header className="w-full space-y-4 mb-12">
         <h1 className="text-3xl font-semibold">
-          I've been building a lot of things
+          I&apos;ve been building a lot of things
         </h1>
       </header>
-      <div className="col-span-full flex gap-6 flex-wrap">
-        {PROJECTS.map((project, index) => (
-          <div key={index} className="col-span-3 mb-12">
+      <div className="w-full flex gap-6 flex-wrap">
+        {projects.map((project, index) => (
+          <div key={index} className="mb-12 w-full sm:max-w-[350px] relative">
             <ProjectCard project={project} />
           </div>
         ))}
