@@ -1,6 +1,5 @@
 import { client } from "@/sanity/lib/client";
 import { HeroSectionType } from "@/sanity/schemaTypes/hero-section";
-import WaterFillingLogo from "./water-filling-logo";
 
 const HERO_QUERY = `*[
   _type == "heroSection"
