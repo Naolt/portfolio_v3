@@ -131,3 +131,16 @@ html {
   -ms-overflow-style: none;
   /* IE and Edge */
 }
+
+@keyframes fill-water {
+  0% {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}
+
+.animate-water-fill {
+  animation: fill-water 3s ease-in-out infinite;
+}
